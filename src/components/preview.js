@@ -78,7 +78,7 @@ export default class Preview extends React.Component {
 }
 
 Preview.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.oneOf([PropTypes.element, PropTypes.string]).isRequired,
   emoji: PropTypes.string.isRequired,
   emojiProps: PropTypes.object.isRequired,
   skinsProps: PropTypes.object.isRequired,

@@ -6509,7 +6509,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	Preview.propTypes = {
-	  title: _propTypes2.default.string.isRequired,
+	  title: _propTypes2.default.oneOf([_propTypes2.default.element, _propTypes2.default.string]).isRequired,
 	  emoji: _propTypes2.default.string.isRequired,
 	  emojiProps: _propTypes2.default.object.isRequired,
 	  skinsProps: _propTypes2.default.object.isRequired
