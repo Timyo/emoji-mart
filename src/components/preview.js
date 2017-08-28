@@ -37,7 +37,9 @@ export default class Preview extends React.Component {
         </div>
 
         <div className='emoji-mart-preview-data'>
-          <div className='emoji-mart-preview-name'>{emoji.name}</div>
+          <span className='emoji-mart-title-label'>
+            {title}
+          </span>
           <div className='emoji-mart-preview-shortnames'>
             {emojiData.short_names.map((short_name) =>
               <span key={short_name} className='emoji-mart-preview-shortname'>:{short_name}:</span>
@@ -76,7 +78,7 @@ export default class Preview extends React.Component {
 }
 
 Preview.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.oneOf([PropTypes.element, PropTypes.string]).isRequired,
   emoji: PropTypes.string.isRequired,
   emojiProps: PropTypes.object.isRequired,
   skinsProps: PropTypes.object.isRequired,
