@@ -44,8 +44,9 @@
     "karma-webpack": "^2.0.2",
     "mkdirp": "0.5.1",
     "prop-types": "^15.5.8",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
+    "react": "^15.6.1",
+    "react-addons-test-utils": "^15.6.0",
+    "react-dom": "^15.6.1",
     "rimraf": "2.5.2",
     "svg-jsx-loader": "^0.0.16",
     "webpack": "1.12.14"
