@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import ReactSVG from 'react-svg'
+
 import * as SVGs from '../svgs'
 
 export default class Anchors extends React.Component {
@@ -42,7 +44,9 @@ export default class Anchors extends React.Component {
             className={`emoji-mart-anchor ${isSelected ? 'emoji-mart-anchor-selected' : ''}`}
             style={{ color: isSelected ? color : null }}
           >
-            <SVGElement />
+            <ReactSVG
+                path={SVGElement}
+            />
             <span className='emoji-mart-anchor-bar' style={{ backgroundColor: color }}></span>
           </span>
         )

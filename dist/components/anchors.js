@@ -36,6 +36,10 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
+var _reactSvg = require('react-svg');
+
+var _reactSvg2 = _interopRequireDefault(_reactSvg);
+
 var _svgs = require('../svgs');
 
 var SVGs = _interopRequireWildcard(_svgs);
@@ -122,7 +126,9 @@ var Anchors = function (_React$Component) {
               className: 'emoji-mart-anchor ' + (isSelected ? 'emoji-mart-anchor-selected' : ''),
               style: { color: isSelected ? color : null }
             },
-            _react2.default.createElement(SVGElement, null),
+            _react2.default.createElement(_reactSvg2.default, {
+              path: SVGElement
+            }),
             _react2.default.createElement('span', { className: 'emoji-mart-anchor-bar', style: { backgroundColor: color } })
           );
         })
