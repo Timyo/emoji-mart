@@ -2,8 +2,7 @@ var fs = require('fs'),
     emojiData = require('emoji-datasource'),
     emojiLib = require('emojilib'),
     inflection = require('inflection'),
-    mkdirp = require('mkdirp'),
-    buildSearch = require('../src/utils/build-search')
+    mkdirp = require('mkdirp')
 
 var unifiedToNative = unified => String.fromCodePoint(
   ...unified.split('-').map(s => parseInt(s, 16))
@@ -92,17 +91,8 @@ emojiData.forEach((datum) => {
   delete datum.texts
 
   if (emojiLibMatch) {
-    keywords = emojiLibMatch.keywords
+    datum.keywords = emojiLibMatch.keywords
   }
-
-  datum.search = buildSearch({
-    short_names: datum.short_names,
-    name: datum.name,
-    keywords,
-    emoticons: datum.emoticons
-  })
-
-  datum.search = datum.search.join(',')
 
   if (datum.category == 'Skin Tones') {
     data.skins[datum.short_name] = datum
@@ -117,6 +107,12 @@ emojiData.forEach((datum) => {
     data.short_names[short_name] = datum.short_name
   })
 
+  datum.short_names = datum.short_names.filter(i => i !== datum.short_name)
+  datum.sheet = [datum.sheet_x, datum.sheet_y]
+
+  if (datum.text === '') delete datum.text
+  if (datum.added_in === '6.0') delete datum.added_in
+
   delete datum.docomo
   delete datum.au
   delete datum.softbank
@@ -125,6 +121,8 @@ emojiData.forEach((datum) => {
   delete datum.short_name
   delete datum.category
   delete datum.sort_order
+  delete datum.sheet_x
+  delete datum.sheet_y
 
   for (let key in datum) {
     let value = datum[key]
@@ -136,13 +134,13 @@ emojiData.forEach((datum) => {
 })
 
 var flags = data.categories[categoriesIndex['Flags']]
-flags.emojis.sort()
+flags.emojis = flags.emojis.filter((flag) => {
+  // Until browsers support Flag UN
+  if (flag == 'flag-un') return
+  return true
+}).sort()
 
-mkdirp('data', (err) => {
+const stringified = JSON.stringify(data).replace(/\"([A-Za-z_]+)\":/g, '$1:')
+fs.writeFile('src/data/data.js', `export default ${stringified}`, (err) => {
   if (err) throw err
-
-  const stringifiedData = JSON.stringify(data).replace(/\"([A-Za-z_]+)\":/g, '$1:')
-  fs.writeFile('data/index.js', `module.exports =  ${stringifiedData}`, (err) => {
-    if (err) throw err
-  })
 })

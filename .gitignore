@@ -1,2 +1,6 @@
 node_modules/
-bundle.js
+dist/
+dist-es/
+stats.json
+report.html
+/src/data/data.js
