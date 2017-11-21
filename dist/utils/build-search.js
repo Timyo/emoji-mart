@@ -1,6 +1,10 @@
-"use strict";
+'use strict';
 
-module.exports = function (data) {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports.default = function (data) {
   var search = [];
 
   var addToSearch = function addToSearch(strings, split) {
@@ -8,8 +12,8 @@ module.exports = function (data) {
       return;
     }
 
-    (Array.isArray(strings) ? strings : [strings]).forEach(function (string) {
-      (split ? string.split(/[-|_|\s]+/) : [string]).forEach(function (s) {
+    ;(Array.isArray(strings) ? strings : [strings]).forEach(function (string) {
+      ;(split ? string.split(/[-|_|\s]+/) : [string]).forEach(function (s) {
         s = s.toLowerCase();
 
         if (search.indexOf(s) == -1) {
@@ -24,5 +28,5 @@ module.exports = function (data) {
   addToSearch(data.keywords, false);
   addToSearch(data.emoticons, false);
 
-  return search;
+  return search.join(',');
 };

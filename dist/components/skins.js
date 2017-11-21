@@ -4,27 +4,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+var _objectGetPrototypeOf = require('../polyfills/objectGetPrototypeOf');
 
-var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
-
-var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
-
-var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+var _objectGetPrototypeOf2 = _interopRequireDefault(_objectGetPrototypeOf);
 
 var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = require('babel-runtime/helpers/createClass');
+var _createClass2 = require('../polyfills/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+var _possibleConstructorReturn2 = require('../polyfills/possibleConstructorReturn');
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = require('babel-runtime/helpers/inherits');
+var _inherits2 = require('../polyfills/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -38,23 +34,26 @@ var _propTypes2 = _interopRequireDefault(_propTypes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Skins = function (_React$Component) {
-  (0, _inherits3.default)(Skins, _React$Component);
+var Skins = function (_React$PureComponent) {
+  (0, _inherits3.default)(Skins, _React$PureComponent);
 
   function Skins(props) {
     (0, _classCallCheck3.default)(this, Skins);
 
-    var _this = (0, _possibleConstructorReturn3.default)(this, (Skins.__proto__ || (0, _getPrototypeOf2.default)(Skins)).call(this, props));
+    var _this = (0, _possibleConstructorReturn3.default)(this, (Skins.__proto__ || (0, _objectGetPrototypeOf2.default)(Skins)).call(this, props));
 
     _this.state = {
       opened: false
     };
+
+    _this.handleClick = _this.handleClick.bind(_this);
     return _this;
   }
 
   (0, _createClass3.default)(Skins, [{
     key: 'handleClick',
-    value: function handleClick(skin) {
+    value: function handleClick(e) {
+      var skin = e.currentTarget.getAttribute('data-skin');
       var onChange = this.props.onChange;
 
 
@@ -70,38 +69,45 @@ var Skins = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var _this2 = this;
-
       var skin = this.props.skin;
       var opened = this.state.opened;
 
+
+      var skinToneNodes = [];
+
+      for (var i = 0; i < 6; i++) {
+        var skinTone = i + 1;
+        var selected = skinTone == skin;
+
+        skinToneNodes.push(_react2.default.createElement(
+          'span',
+          {
+            key: 'skin-tone-' + skinTone,
+            className: 'emoji-mart-skin-swatch ' + (selected ? 'emoji-mart-skin-swatch-selected' : '')
+          },
+          _react2.default.createElement('span', {
+            onClick: this.handleClick,
+            'data-skin': skinTone,
+            className: 'emoji-mart-skin emoji-mart-skin-tone-' + skinTone
+          })
+        ));
+      }
 
       return _react2.default.createElement(
         'div',
         null,
         _react2.default.createElement(
           'div',
-          { className: 'emoji-mart-skin-swatches ' + (opened ? 'emoji-mart-skin-swatches-opened' : '') },
-          [].concat((0, _toConsumableArray3.default)(Array(6))).map(function (_, i) {
-            var skinTone = i + 1,
-                selected = skinTone == skin;
-
-            return _react2.default.createElement(
-              'span',
-              { key: 'skin-tone-' + skinTone, className: 'emoji-mart-skin-swatch ' + (selected ? 'emoji-mart-skin-swatch-selected' : '') },
-              _react2.default.createElement('span', {
-                onClick: function onClick() {
-                  return _this2.handleClick(skinTone);
-                },
-                className: 'emoji-mart-skin emoji-mart-skin-tone-' + skinTone })
-            );
-          })
+          {
+            className: 'emoji-mart-skin-swatches ' + (opened ? 'emoji-mart-skin-swatches-opened' : '')
+          },
+          skinToneNodes
         )
       );
     }
   }]);
   return Skins;
-}(_react2.default.Component);
+}(_react2.default.PureComponent);
 
 exports.default = Skins;
 

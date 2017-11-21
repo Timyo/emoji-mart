@@ -3,41 +3,27 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.unifiedToNative = exports.deepMerge = exports.intersect = exports.getSanitizedData = exports.getData = undefined;
+exports.measureScrollbar = exports.unifiedToNative = exports.deepMerge = exports.intersect = exports.uniq = exports.getSanitizedData = exports.getData = undefined;
 
-var _typeof2 = require('babel-runtime/helpers/typeof');
+var _keys = require('babel-runtime/core-js/object/keys');
 
-var _typeof3 = _interopRequireDefault(_typeof2);
-
-var _from = require('babel-runtime/core-js/array/from');
-
-var _from2 = _interopRequireDefault(_from);
-
-var _set = require('babel-runtime/core-js/set');
-
-var _set2 = _interopRequireDefault(_set);
-
-var _stringify = require('babel-runtime/core-js/json/stringify');
-
-var _stringify2 = _interopRequireDefault(_stringify);
-
-var _fromCodePoint = require('babel-runtime/core-js/string/from-code-point');
-
-var _fromCodePoint2 = _interopRequireDefault(_fromCodePoint);
-
-var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
-
-var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+var _keys2 = _interopRequireDefault(_keys);
 
 var _buildSearch = require('./build-search');
 
 var _buildSearch2 = _interopRequireDefault(_buildSearch);
 
-var _data = require('../../data');
+var _data = require('../data');
 
 var _data2 = _interopRequireDefault(_data);
 
+var _stringFromCodePoint = require('../polyfills/stringFromCodePoint');
+
+var _stringFromCodePoint2 = _interopRequireDefault(_stringFromCodePoint);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _JSON = JSON;
 
 var COLONS_REGEX = /^(?:\:([^\:]+)\:)(?:\:skin-tone-(\d)\:)?$/;
 var SKINS = ['1F3FA', '1F3FB', '1F3FC', '1F3FD', '1F3FE', '1F3FF'];
@@ -48,7 +34,7 @@ function unifiedToNative(unified) {
     return '0x' + u;
   });
 
-  return _fromCodePoint2.default.apply(String, (0, _toConsumableArray3.default)(codePoints));
+  return _stringFromCodePoint2.default.apply(null, codePoints);
 }
 
 function sanitize(emoji) {
@@ -113,18 +99,9 @@ function getData(emoji, skin, set) {
 
     if (_data2.default.emojis.hasOwnProperty(emoji)) {
       emojiData = _data2.default.emojis[emoji];
+    } else {
+      return null;
     }
-  } else if (emoji.custom) {
-    emojiData = emoji;
-
-    emojiData.search = (0, _buildSearch2.default)({
-      short_names: emoji.short_names,
-      name: emoji.name,
-      keywords: emoji.keywords,
-      emoticons: emoji.emoticons
-    });
-
-    emojiData.search = emojiData.search.join(',');
   } else if (emoji.id) {
     if (_data2.default.short_names.hasOwnProperty(emoji.id)) {
       emoji.id = _data2.default.short_names[emoji.id];
@@ -136,11 +113,20 @@ function getData(emoji, skin, set) {
     }
   }
 
+  if (!(0, _keys2.default)(emojiData).length) {
+    emojiData = emoji;
+    emojiData.custom = true;
+
+    if (!emojiData.search) {
+      emojiData.search = (0, _buildSearch2.default)(emoji);
+    }
+  }
+
   emojiData.emoticons || (emojiData.emoticons = []);
   emojiData.variations || (emojiData.variations = []);
 
   if (emojiData.skin_variations && skin > 1 && set) {
-    emojiData = JSON.parse((0, _stringify2.default)(emojiData));
+    emojiData = JSON.parse(_JSON.stringify(emojiData));
 
     var skinKey = SKINS[skin - 1],
         variationData = emojiData.skin_variations[skinKey];
@@ -160,23 +146,29 @@ function getData(emoji, skin, set) {
   }
 
   if (emojiData.variations && emojiData.variations.length) {
-    emojiData = JSON.parse((0, _stringify2.default)(emojiData));
+    emojiData = JSON.parse(_JSON.stringify(emojiData));
     emojiData.unified = emojiData.variations.shift();
   }
 
   return emojiData;
 }
 
+function uniq(arr) {
+  return arr.reduce(function (acc, item) {
+    if (acc.indexOf(item) === -1) {
+      acc.push(item);
+    }
+    return acc;
+  }, []);
+}
+
 function intersect(a, b) {
-  var aSet = new _set2.default(a),
-      bSet = new _set2.default(b),
-      intersection = null;
+  var uniqA = uniq(a);
+  var uniqB = uniq(b);
 
-  intersection = new _set2.default([].concat((0, _toConsumableArray3.default)(aSet)).filter(function (x) {
-    return bSet.has(x);
-  }));
-
-  return (0, _from2.default)(intersection);
+  return uniqA.filter(function (item) {
+    return uniqB.indexOf(item) >= 0;
+  });
 }
 
 function deepMerge(a, b) {
@@ -190,7 +182,7 @@ function deepMerge(a, b) {
       value = b[key];
     }
 
-    if ((typeof value === 'undefined' ? 'undefined' : (0, _typeof3.default)(value)) === 'object') {
+    if (typeof value === 'object') {
       value = deepMerge(originalValue, value);
     }
 
@@ -200,8 +192,28 @@ function deepMerge(a, b) {
   return o;
 }
 
+// https://github.com/sonicdoe/measure-scrollbar
+function measureScrollbar() {
+  if (typeof document == 'undefined') return 0;
+  var div = document.createElement('div');
+
+  div.style.width = '100px';
+  div.style.height = '100px';
+  div.style.overflow = 'scroll';
+  div.style.position = 'absolute';
+  div.style.top = '-9999px';
+
+  document.body.appendChild(div);
+  var scrollbarWidth = div.offsetWidth - div.clientWidth;
+  document.body.removeChild(div);
+
+  return scrollbarWidth;
+}
+
 exports.getData = getData;
 exports.getSanitizedData = getSanitizedData;
+exports.uniq = uniq;
 exports.intersect = intersect;
 exports.deepMerge = deepMerge;
 exports.unifiedToNative = unifiedToNative;
+exports.measureScrollbar = measureScrollbar;

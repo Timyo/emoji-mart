@@ -4,35 +4,27 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _assign = require('babel-runtime/core-js/object/assign');
-
-var _assign2 = _interopRequireDefault(_assign);
-
-var _getIterator2 = require('babel-runtime/core-js/get-iterator');
-
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-var _extends2 = require('babel-runtime/helpers/extends');
+var _extends2 = require('../polyfills/extends');
 
 var _extends3 = _interopRequireDefault(_extends2);
 
-var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
+var _objectGetPrototypeOf = require('../polyfills/objectGetPrototypeOf');
 
-var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+var _objectGetPrototypeOf2 = _interopRequireDefault(_objectGetPrototypeOf);
 
 var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = require('babel-runtime/helpers/createClass');
+var _createClass2 = require('../polyfills/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+var _possibleConstructorReturn2 = require('../polyfills/possibleConstructorReturn');
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = require('babel-runtime/helpers/inherits');
+var _inherits2 = require('../polyfills/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -46,11 +38,7 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _measureScrollbar = require('measure-scrollbar');
-
-var _measureScrollbar2 = _interopRequireDefault(_measureScrollbar);
-
-var _data = require('../../data');
+var _data = require('../data');
 
 var _data2 = _interopRequireDefault(_data);
 
@@ -90,13 +78,13 @@ var I18N = {
   }
 };
 
-var Picker = function (_React$Component) {
-  (0, _inherits3.default)(Picker, _React$Component);
+var Picker = function (_React$PureComponent) {
+  (0, _inherits3.default)(Picker, _React$PureComponent);
 
   function Picker(props) {
     (0, _classCallCheck3.default)(this, Picker);
 
-    var _this = (0, _possibleConstructorReturn3.default)(this, (Picker.__proto__ || (0, _getPrototypeOf2.default)(Picker)).call(this, props));
+    var _this = (0, _possibleConstructorReturn3.default)(this, (Picker.__proto__ || (0, _objectGetPrototypeOf2.default)(Picker)).call(this, props));
 
     _this.i18n = (0, _utils.deepMerge)(I18N, props.i18n);
     _this.state = {
@@ -122,7 +110,7 @@ var Picker = function (_React$Component) {
     _this.hideRecent = true;
 
     if (props.include != undefined) {
-      _data2.default.categories.sort(function (a, b) {
+      allCategories.sort(function (a, b) {
         var aName = a.name.toLowerCase();
         var bName = b.name.toLowerCase();
 
@@ -134,74 +122,36 @@ var Picker = function (_React$Component) {
       });
     }
 
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = (0, _getIterator3.default)(allCategories), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var category = _step.value;
-
-        var isIncluded = props.include && props.include.length ? props.include.indexOf(category.name.toLowerCase()) > -1 : true;
-        var isExcluded = props.exclude && props.exclude.length ? props.exclude.indexOf(category.name.toLowerCase()) > -1 : false;
-        if (!isIncluded || isExcluded) {
-          continue;
-        }
-
-        if (props.emojisToShowFilter) {
-          var newEmojis = [];
-
-          var _iteratorNormalCompletion2 = true;
-          var _didIteratorError2 = false;
-          var _iteratorError2 = undefined;
-
-          try {
-            for (var _iterator2 = (0, _getIterator3.default)(category.emojis), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-              var emoji = _step2.value;
-
-              if (props.emojisToShowFilter(_data2.default.emojis[emoji] || emoji)) {
-                newEmojis.push(emoji);
-              }
-            }
-          } catch (err) {
-            _didIteratorError2 = true;
-            _iteratorError2 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                _iterator2.return();
-              }
-            } finally {
-              if (_didIteratorError2) {
-                throw _iteratorError2;
-              }
-            }
-          }
-
-          if (newEmojis.length) {
-            var newCategory = {
-              emojis: newEmojis,
-              name: category.name
-            };
-
-            _this.categories.push(newCategory);
-          }
-        } else {
-          _this.categories.push(category);
-        }
+    for (var categoryIndex = 0; categoryIndex < allCategories.length; categoryIndex++) {
+      var category = allCategories[categoryIndex];
+      var isIncluded = props.include && props.include.length ? props.include.indexOf(category.name.toLowerCase()) > -1 : true;
+      var isExcluded = props.exclude && props.exclude.length ? props.exclude.indexOf(category.name.toLowerCase()) > -1 : false;
+      if (!isIncluded || isExcluded) {
+        continue;
       }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
+
+      if (props.emojisToShowFilter) {
+        var newEmojis = [];
+
+        var emojis = category.emojis;
+
+        for (var emojiIndex = 0; emojiIndex < emojis.length; emojiIndex++) {
+          var emoji = emojis[emojiIndex];
+          if (props.emojisToShowFilter(_data2.default.emojis[emoji] || emoji)) {
+            newEmojis.push(emoji);
+          }
         }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
+
+        if (newEmojis.length) {
+          var newCategory = {
+            emojis: newEmojis,
+            name: category.name
+          };
+
+          _this.categories.push(newCategory);
         }
+      } else {
+        _this.categories.push(category);
       }
     }
 
@@ -217,6 +167,19 @@ var Picker = function (_React$Component) {
     }
 
     _this.categories.unshift(SEARCH_CATEGORY);
+
+    _this.setAnchorsRef = _this.setAnchorsRef.bind(_this);
+    _this.handleAnchorClick = _this.handleAnchorClick.bind(_this);
+    _this.setSearchRef = _this.setSearchRef.bind(_this);
+    _this.handleSearch = _this.handleSearch.bind(_this);
+    _this.setScrollRef = _this.setScrollRef.bind(_this);
+    _this.handleScroll = _this.handleScroll.bind(_this);
+    _this.handleScrollPaint = _this.handleScrollPaint.bind(_this);
+    _this.handleEmojiOver = _this.handleEmojiOver.bind(_this);
+    _this.handleEmojiLeave = _this.handleEmojiLeave.bind(_this);
+    _this.handleEmojiClick = _this.handleEmojiClick.bind(_this);
+    _this.setPreviewRef = _this.setPreviewRef.bind(_this);
+    _this.handleSkinChange = _this.handleSkinChange.bind(_this);
     return _this;
   }
 
@@ -257,56 +220,70 @@ var Picker = function (_React$Component) {
     key: 'testStickyPosition',
     value: function testStickyPosition() {
       var stickyTestElement = document.createElement('div');
-      var _arr = ['', '-webkit-', '-ms-', '-moz-', '-o-'];
-      for (var _i = 0; _i < _arr.length; _i++) {
-        var prefix = _arr[_i];
-        stickyTestElement.style.position = prefix + 'sticky';
-      }
+
+      var prefixes = ['', '-webkit-', '-ms-', '-moz-', '-o-'];
+
+      prefixes.forEach(function (prefix) {
+        return stickyTestElement.style.position = prefix + 'sticky';
+      });
 
       this.hasStickyPosition = !!stickyTestElement.style.position.length;
     }
   }, {
     key: 'handleEmojiOver',
     value: function handleEmojiOver(emoji) {
-      var preview = this.refs.preview;
-      // Use Array.prototype.find() when it is more widely supported.
+      var preview = this.preview;
 
+      if (!preview) {
+        return;
+      }
+
+      // Use Array.prototype.find() when it is more widely supported.
       var emojiData = CUSTOM_CATEGORY.emojis.filter(function (customEmoji) {
         return customEmoji.id === emoji.id;
       })[0];
-      preview.setState({ emoji: (0, _assign2.default)(emoji, emojiData) });
+      for (var key in emojiData) {
+        if (emojiData.hasOwnProperty(key)) {
+          emoji[key] = emojiData[key];
+        }
+      }
+
+      preview.setState({ emoji: emoji });
       clearTimeout(this.leaveTimeout);
     }
   }, {
     key: 'handleEmojiLeave',
     value: function handleEmojiLeave(emoji) {
-      var _this3 = this;
+      var preview = this.preview;
+
+      if (!preview) {
+        return;
+      }
 
       this.leaveTimeout = setTimeout(function () {
-        var preview = _this3.refs.preview;
-
         preview.setState({ emoji: null });
       }, 16);
     }
   }, {
     key: 'handleEmojiClick',
     value: function handleEmojiClick(emoji, e) {
-      var _this4 = this;
+      var _this3 = this;
 
       this.props.onClick(emoji, e);
-      if (!this.hideRecent) _frequently2.default.add(emoji);
+      if (!this.hideRecent && !this.props.recent) _frequently2.default.add(emoji);
 
-      var component = this.refs['category-1'];
+      var component = this.categoryRefs['category-1'];
       if (component) {
         var maxMargin = component.maxMargin;
         component.forceUpdate();
 
         window.requestAnimationFrame(function () {
+          if (!_this3.scroll) return;
           component.memoizeSize();
           if (maxMargin == component.maxMargin) return;
 
-          _this4.updateCategoriesSize();
-          _this4.handleScrollPaint();
+          _this3.updateCategoriesSize();
+          _this3.handleScrollPaint();
 
           if (SEARCH_CATEGORY.emojis) {
             component.updateDisplay('none');
@@ -319,7 +296,7 @@ var Picker = function (_React$Component) {
     value: function handleScroll() {
       if (!this.waitingForPaint) {
         this.waitingForPaint = true;
-        window.requestAnimationFrame(this.handleScrollPaint.bind(this));
+        window.requestAnimationFrame(this.handleScrollPaint);
       }
     }
   }, {
@@ -327,7 +304,7 @@ var Picker = function (_React$Component) {
     value: function handleScrollPaint() {
       this.waitingForPaint = false;
 
-      if (!this.refs.scroll) {
+      if (!this.scroll) {
         return;
       }
 
@@ -336,7 +313,7 @@ var Picker = function (_React$Component) {
       if (SEARCH_CATEGORY.emojis) {
         activeCategory = SEARCH_CATEGORY;
       } else {
-        var target = this.refs.scroll,
+        var target = this.scroll,
             scrollTop = target.scrollTop,
             scrollingDown = scrollTop > (this.scrollTop || 0),
             minTop = 0;
@@ -344,7 +321,7 @@ var Picker = function (_React$Component) {
         for (var i = 0, l = this.categories.length; i < l; i++) {
           var ii = scrollingDown ? this.categories.length - 1 - i : i,
               category = this.categories[ii],
-              component = this.refs['category-' + ii];
+              component = this.categoryRefs['category-' + ii];
 
           if (component) {
             var active = component.handleScroll(scrollTop);
@@ -362,42 +339,16 @@ var Picker = function (_React$Component) {
         }
 
         if (scrollTop < minTop) {
-          var _iteratorNormalCompletion3 = true;
-          var _didIteratorError3 = false;
-          var _iteratorError3 = undefined;
-
-          try {
-            for (var _iterator3 = (0, _getIterator3.default)(this.categories), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              var _category = _step3.value;
-
-              if (_category.anchor === false) {
-                continue;
-              }
-
-              activeCategory = _category;
-              break;
-            }
-          } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                _iterator3.return();
-              }
-            } finally {
-              if (_didIteratorError3) {
-                throw _iteratorError3;
-              }
-            }
-          }
+          activeCategory = this.categories.filter(function (category) {
+            return !(category.anchor === false);
+          })[0];
         } else if (scrollTop + this.clientHeight >= this.scrollHeight) {
           activeCategory = this.categories[this.categories.length - 1];
         }
       }
 
       if (activeCategory) {
-        var anchors = this.refs.anchors;
+        var anchors = this.anchors;
         var _activeCategory = activeCategory;
         var categoryName = _activeCategory.name;
 
@@ -415,7 +366,7 @@ var Picker = function (_React$Component) {
       SEARCH_CATEGORY.emojis = emojis;
 
       for (var i = 0, l = this.categories.length; i < l; i++) {
-        var component = this.refs['category-' + i];
+        var component = this.categoryRefs['category-' + i];
 
         if (component && component.props.name != 'Search') {
           var display = emojis ? 'none' : 'inherit';
@@ -424,16 +375,15 @@ var Picker = function (_React$Component) {
       }
 
       this.forceUpdate();
-      this.refs.scroll.scrollTop = 0;
+      this.scroll.scrollTop = 0;
       this.handleScroll();
     }
   }, {
     key: 'handleAnchorClick',
     value: function handleAnchorClick(category, i) {
-      var component = this.refs['category-' + i];
-      var _refs = this.refs;
-      var scroll = _refs.scroll;
-      var anchors = _refs.anchors;
+      var component = this.categoryRefs['category-' + i];
+      var scroll = this.scroll;
+      var anchors = this.anchors;
       var scrollToComponent = null;
 
       scrollToComponent = function scrollToComponent() {
@@ -453,7 +403,7 @@ var Picker = function (_React$Component) {
 
       if (SEARCH_CATEGORY.emojis) {
         this.handleSearch(null);
-        this.refs.search.clear();
+        this.search.clear();
 
         window.requestAnimationFrame(scrollToComponent);
       } else {
@@ -472,12 +422,12 @@ var Picker = function (_React$Component) {
     key: 'updateCategoriesSize',
     value: function updateCategoriesSize() {
       for (var i = 0, l = this.categories.length; i < l; i++) {
-        var component = this.refs['category-' + i];
+        var component = this.categoryRefs['category-' + i];
         if (component) component.memoizeSize();
       }
 
-      if (this.refs.scroll) {
-        var target = this.refs.scroll;
+      if (this.scroll) {
+        var target = this.scroll;
         this.scrollHeight = target.scrollHeight;
         this.clientHeight = target.clientHeight;
       }
@@ -488,9 +438,38 @@ var Picker = function (_React$Component) {
       return this.state.firstRender ? this.categories.slice(0, 3) : this.categories;
     }
   }, {
+    key: 'setAnchorsRef',
+    value: function setAnchorsRef(c) {
+      this.anchors = c;
+    }
+  }, {
+    key: 'setSearchRef',
+    value: function setSearchRef(c) {
+      this.search = c;
+    }
+  }, {
+    key: 'setPreviewRef',
+    value: function setPreviewRef(c) {
+      this.preview = c;
+    }
+  }, {
+    key: 'setScrollRef',
+    value: function setScrollRef(c) {
+      this.scroll = c;
+    }
+  }, {
+    key: 'setCategoryRef',
+    value: function setCategoryRef(name, c) {
+      if (!this.categoryRefs) {
+        this.categoryRefs = {};
+      }
+
+      this.categoryRefs[name] = c;
+    }
+  }, {
     key: 'render',
     value: function render() {
-      var _this5 = this;
+      var _this4 = this;
 
       var _props = this.props;
       var perLine = _props.perLine;
@@ -504,12 +483,14 @@ var Picker = function (_React$Component) {
       var native = _props.native;
       var backgroundImageFn = _props.backgroundImageFn;
       var emojisToShowFilter = _props.emojisToShowFilter;
+      var showPreview = _props.showPreview;
+      var emojiTooltip = _props.emojiTooltip;
       var include = _props.include;
       var exclude = _props.exclude;
+      var recent = _props.recent;
       var autoFocus = _props.autoFocus;
-      var previewEmojiSize = _props.previewEmojiSize;
       var skin = this.state.skin;
-      var width = perLine * (emojiSize + 12) + 12 + 2 + (0, _measureScrollbar2.default)();
+      var width = perLine * (emojiSize + 12) + 12 + 2 + (0, _utils.measureScrollbar)();
 
       return _react2.default.createElement(
         'div',
@@ -518,16 +499,16 @@ var Picker = function (_React$Component) {
           'div',
           { className: 'emoji-mart-bar' },
           _react2.default.createElement(_.Anchors, {
-            ref: 'anchors',
+            ref: this.setAnchorsRef,
             i18n: this.i18n,
             color: color,
             categories: this.categories,
-            onAnchorClick: this.handleAnchorClick.bind(this)
+            onAnchorClick: this.handleAnchorClick
           })
         ),
         _react2.default.createElement(_.Search, {
-          ref: 'search',
-          onSearch: this.handleSearch.bind(this),
+          ref: this.setSearchRef,
+          onSearch: this.handleSearch,
           i18n: this.i18n,
           emojisToShowFilter: emojisToShowFilter,
           include: include,
@@ -537,17 +518,22 @@ var Picker = function (_React$Component) {
         }),
         _react2.default.createElement(
           'div',
-          { ref: 'scroll', className: 'emoji-mart-scroll', onScroll: this.handleScroll.bind(this) },
+          {
+            ref: this.setScrollRef,
+            className: 'emoji-mart-scroll',
+            onScroll: this.handleScroll
+          },
           this.getCategories().map(function (category, i) {
             return _react2.default.createElement(_.Category, {
-              ref: 'category-' + i,
+              ref: _this4.setCategoryRef.bind(_this4, 'category-' + i),
               key: category.name,
               name: category.name,
               emojis: category.emojis,
               perLine: perLine,
               native: native,
-              hasStickyPosition: _this5.hasStickyPosition,
-              i18n: _this5.i18n,
+              hasStickyPosition: _this4.hasStickyPosition,
+              i18n: _this4.i18n,
+              recent: category.name == 'Recent' ? recent : undefined,
               custom: category.name == 'Recent' ? CUSTOM_CATEGORY.emojis : undefined,
               emojiProps: {
                 native: native,
@@ -556,24 +542,25 @@ var Picker = function (_React$Component) {
                 set: set,
                 sheetSize: sheetSize,
                 forceSize: native,
+                tooltip: emojiTooltip,
                 backgroundImageFn: backgroundImageFn,
-                onOver: _this5.handleEmojiOver.bind(_this5),
-                onLeave: _this5.handleEmojiLeave.bind(_this5),
-                onClick: _this5.handleEmojiClick.bind(_this5)
+                onOver: _this4.handleEmojiOver,
+                onLeave: _this4.handleEmojiLeave,
+                onClick: _this4.handleEmojiClick
               }
             });
           })
         ),
-        _react2.default.createElement(
+        showPreview && _react2.default.createElement(
           'div',
           { className: 'emoji-mart-bar' },
           _react2.default.createElement(_.Preview, {
-            ref: 'preview',
+            ref: this.setPreviewRef,
             title: title,
             emoji: emoji,
             emojiProps: {
               native: native,
-              size: { previewEmojiSize: previewEmojiSize },
+              size: 38,
               skin: skin,
               set: set,
               sheetSize: sheetSize,
@@ -581,7 +568,7 @@ var Picker = function (_React$Component) {
             },
             skinsProps: {
               skin: skin,
-              onChange: this.handleSkinChange.bind(this)
+              onChange: this.handleSkinChange
             }
           })
         )
@@ -589,7 +576,7 @@ var Picker = function (_React$Component) {
     }
   }]);
   return Picker;
-}(_react2.default.Component);
+}(_react2.default.PureComponent);
 
 exports.default = Picker;
 
@@ -610,6 +597,8 @@ Picker.defaultProps = {
   sheetSize: _.Emoji.defaultProps.sheetSize,
   backgroundImageFn: _.Emoji.defaultProps.backgroundImageFn,
   emojisToShowFilter: null,
+  showPreview: true,
+  emojiTooltip: _.Emoji.defaultProps.tooltip,
   autoFocus: false,
   custom: []
 };

@@ -4,31 +4,27 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _extends2 = require('babel-runtime/helpers/extends');
+var _extends2 = require('../polyfills/extends');
 
 var _extends3 = _interopRequireDefault(_extends2);
 
-var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+var _objectGetPrototypeOf = require('../polyfills/objectGetPrototypeOf');
 
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
-
-var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+var _objectGetPrototypeOf2 = _interopRequireDefault(_objectGetPrototypeOf);
 
 var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = require('babel-runtime/helpers/createClass');
+var _createClass2 = require('../polyfills/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+var _possibleConstructorReturn2 = require('../polyfills/possibleConstructorReturn');
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = require('babel-runtime/helpers/inherits');
+var _inherits2 = require('../polyfills/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -44,6 +40,8 @@ var _frequently = require('../utils/frequently');
 
 var _frequently2 = _interopRequireDefault(_frequently);
 
+var _utils = require('../utils');
+
 var _ = require('.');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -51,16 +49,19 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Category = function (_React$Component) {
   (0, _inherits3.default)(Category, _React$Component);
 
-  function Category() {
+  function Category(props) {
     (0, _classCallCheck3.default)(this, Category);
-    return (0, _possibleConstructorReturn3.default)(this, (Category.__proto__ || (0, _getPrototypeOf2.default)(Category)).apply(this, arguments));
+
+    var _this = (0, _possibleConstructorReturn3.default)(this, (Category.__proto__ || (0, _objectGetPrototypeOf2.default)(Category)).call(this, props));
+
+    _this.setContainerRef = _this.setContainerRef.bind(_this);
+    _this.setLabelRef = _this.setLabelRef.bind(_this);
+    return _this;
   }
 
   (0, _createClass3.default)(Category, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
-      this.container = this.refs.container;
-      this.label = this.refs.label;
       this.parent = this.container.parentNode;
 
       this.margin = 0;
@@ -154,45 +155,32 @@ var Category = function (_React$Component) {
       var _props2 = this.props;
       var name = _props2.name;
       var emojis = _props2.emojis;
+      var recent = _props2.recent;
       var perLine = _props2.perLine;
 
 
       if (name == 'Recent') {
         var custom = this.props.custom;
 
-        var frequentlyUsed = _frequently2.default.get(perLine);
+        var frequentlyUsed = recent || _frequently2.default.get(perLine);
 
         if (frequentlyUsed.length) {
           emojis = frequentlyUsed.map(function (id) {
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-              for (var _iterator = (0, _getIterator3.default)(custom), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                var emoji = _step.value;
-
-                if (emoji.id === id) {
-                  return emoji;
-                }
-              }
-            } catch (err) {
-              _didIteratorError = true;
-              _iteratorError = err;
-            } finally {
-              try {
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                  _iterator.return();
-                }
-              } finally {
-                if (_didIteratorError) {
-                  throw _iteratorError;
-                }
-              }
+            var emoji = custom.filter(function (e) {
+              return e.id === id;
+            })[0];
+            if (emoji) {
+              return emoji;
             }
 
             return id;
+          }).filter(function (id) {
+            return !!(0, _utils.getData)(id);
           });
+        }
+
+        if (emojis.length === 0 && frequentlyUsed.length > 0) {
+          return null;
         }
       }
 
@@ -212,6 +200,16 @@ var Category = function (_React$Component) {
       }
 
       this.container.style.display = display;
+    }
+  }, {
+    key: 'setContainerRef',
+    value: function setContainerRef(c) {
+      this.container = c;
+    }
+  }, {
+    key: 'setLabelRef',
+    value: function setLabelRef(c) {
+      this.label = c;
     }
   }, {
     key: 'render',
@@ -244,20 +242,26 @@ var Category = function (_React$Component) {
 
       return _react2.default.createElement(
         'div',
-        { ref: 'container', className: 'emoji-mart-category ' + (emojis && !emojis.length ? 'emoji-mart-no-results' : ''), style: containerStyles },
+        {
+          ref: this.setContainerRef,
+          className: 'emoji-mart-category ' + (emojis && !emojis.length ? 'emoji-mart-no-results' : ''),
+          style: containerStyles
+        },
         _react2.default.createElement(
           'div',
-          { style: labelStyles, 'data-name': name, className: 'emoji-mart-category-label' },
+          {
+            style: labelStyles,
+            'data-name': name,
+            className: 'emoji-mart-category-label'
+          },
           _react2.default.createElement(
             'span',
-            { style: labelSpanStyles, ref: 'label' },
+            { style: labelSpanStyles, ref: this.setLabelRef },
             i18n.categories[name.toLowerCase()]
           )
         ),
         emojis && emojis.map(function (emoji) {
-          return (0, _.Emoji)((0, _extends3.default)({
-            emoji: emoji
-          }, emojiProps));
+          return (0, _.Emoji)((0, _extends3.default)({ emoji: emoji }, emojiProps));
         }),
         emojis && !emojis.length && _react2.default.createElement(
           'div',

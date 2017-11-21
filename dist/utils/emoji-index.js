@@ -4,15 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
-
-var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
-
-var _getIterator2 = require('babel-runtime/core-js/get-iterator');
-
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-var _data = require('../../data');
+var _data = require('../data');
 
 var _data2 = _interopRequireDefault(_data);
 
@@ -20,48 +12,44 @@ var _ = require('.');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var extend = require('util')._extend;
-
+var originalPool = {};
 var index = {};
 var emojisList = {};
 var emoticonsList = {};
-var previousInclude = [];
-var previousExclude = [];
 
-for (var emoji in _data2.default.emojis) {
+var _loop = function _loop(emoji) {
   var emojiData = _data2.default.emojis[emoji];
   var short_names = emojiData.short_names;
   var emoticons = emojiData.emoticons;
   var id = short_names[0];
 
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
+  if (emoticons) {
+    emoticons.forEach(function (emoticon) {
+      if (emoticonsList[emoticon]) {
+        return;
+      }
 
-  try {
-    for (var _iterator = (0, _getIterator3.default)(emoticons || []), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var emoticon = _step.value;
-
-      if (!emoticonsList[emoticon]) {
-        emoticonsList[emoticon] = id;
-      }
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
+      emoticonsList[emoticon] = id;
+    });
   }
 
   emojisList[id] = (0, _.getSanitizedData)(id);
+  originalPool[id] = emojiData;
+};
+
+for (var emoji in _data2.default.emojis) {
+  _loop(emoji);
+}
+
+function addCustomToPool(custom, pool) {
+  custom.forEach(function (emoji) {
+    var emojiId = emoji.id || emoji.short_names[0];
+
+    if (emojiId && !pool[emojiId]) {
+      pool[emojiId] = (0, _.getData)(emoji);
+      emojisList[emojiId] = (0, _.getSanitizedData)(emoji);
+    }
+  });
 }
 
 function search(value) {
@@ -74,47 +62,14 @@ function search(value) {
   var _ref$custom = _ref.custom;
   var custom = _ref$custom === undefined ? [] : _ref$custom;
 
+  addCustomToPool(custom, originalPool);
+
   maxResults || (maxResults = 75);
   include || (include = []);
   exclude || (exclude = []);
 
-  if (custom.length) {
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-      for (var _iterator2 = (0, _getIterator3.default)(custom), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-        var _emoji = _step2.value;
-
-        _data2.default.emojis[_emoji.id] = (0, _.getData)(_emoji);
-        emojisList[_emoji.id] = (0, _.getSanitizedData)(_emoji);
-      }
-    } catch (err) {
-      _didIteratorError2 = true;
-      _iteratorError2 = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion2 && _iterator2.return) {
-          _iterator2.return();
-        }
-      } finally {
-        if (_didIteratorError2) {
-          throw _iteratorError2;
-        }
-      }
-    }
-
-    _data2.default.categories.push({
-      name: 'Custom',
-      emojis: custom.map(function (emoji) {
-        return emoji.id;
-      })
-    });
-  }
-
   var results = null,
-      pool = _data2.default.emojis;
+      pool = originalPool;
 
   if (value.length) {
     if (value == '-' || value == '-1') {
@@ -131,67 +86,25 @@ function search(value) {
     if (include.length || exclude.length) {
       pool = {};
 
-      if (previousInclude != include.sort().join(',') || previousExclude != exclude.sort().join(',')) {
-        previousInclude = include.sort().join(',');
-        previousExclude = exclude.sort().join(',');
-        index = {};
-      }
-
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
-
-      try {
-        for (var _iterator3 = (0, _getIterator3.default)(_data2.default.categories), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var category = _step3.value;
-
-          var isIncluded = include && include.length ? include.indexOf(category.name.toLowerCase()) > -1 : true;
-          var isExcluded = exclude && exclude.length ? exclude.indexOf(category.name.toLowerCase()) > -1 : false;
-          if (!isIncluded || isExcluded) {
-            continue;
-          }
-
-          var _iteratorNormalCompletion4 = true;
-          var _didIteratorError4 = false;
-          var _iteratorError4 = undefined;
-
-          try {
-            for (var _iterator4 = (0, _getIterator3.default)(category.emojis), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-              var emojiId = _step4.value;
-
-              pool[emojiId] = _data2.default.emojis[emojiId];
-            }
-          } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                _iterator4.return();
-              }
-            } finally {
-              if (_didIteratorError4) {
-                throw _iteratorError4;
-              }
-            }
-          }
+      _data2.default.categories.forEach(function (category) {
+        var isIncluded = include && include.length ? include.indexOf(category.name.toLowerCase()) > -1 : true;
+        var isExcluded = exclude && exclude.length ? exclude.indexOf(category.name.toLowerCase()) > -1 : false;
+        if (!isIncluded || isExcluded) {
+          return;
         }
-      } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-            _iterator3.return();
-          }
-        } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
-          }
+
+        category.emojis.forEach(function (emojiId) {
+          return pool[emojiId] = _data2.default.emojis[emojiId];
+        });
+      });
+
+      if (custom.length) {
+        var customIsIncluded = include && include.length ? include.indexOf('custom') > -1 : true;
+        var customIsExcluded = exclude && exclude.length ? exclude.indexOf('custom') > -1 : false;
+        if (customIsIncluded && !customIsExcluded) {
+          addCustomToPool(custom, pool);
         }
       }
-    } else if (previousInclude.length || previousExclude.length) {
-      index = {};
     }
 
     allResults = values.map(function (value) {
@@ -199,67 +112,47 @@ function search(value) {
           aIndex = index,
           length = 0;
 
-      var _iteratorNormalCompletion5 = true;
-      var _didIteratorError5 = false;
-      var _iteratorError5 = undefined;
+      for (var charIndex = 0; charIndex < value.length; charIndex++) {
+        var char = value[charIndex];
+        length++;
 
-      try {
-        for (var _iterator5 = (0, _getIterator3.default)(value.split('')), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-          var char = _step5.value;
+        aIndex[char] || (aIndex[char] = {});
+        aIndex = aIndex[char];
 
-          length++;
+        if (!aIndex.results) {
+          (function () {
+            var scores = {};
 
-          aIndex[char] || (aIndex[char] = {});
-          aIndex = aIndex[char];
+            aIndex.results = [];
+            aIndex.pool = {};
 
-          if (!aIndex.results) {
-            (function () {
-              var scores = {};
+            for (var _id in aPool) {
+              var emoji = aPool[_id];
+              var _search = emoji.search;
+              var sub = value.substr(0, length);
+              var subIndex = _search.indexOf(sub);
 
-              aIndex.results = [];
-              aIndex.pool = {};
+              if (subIndex != -1) {
+                var score = subIndex + 1;
+                if (sub == _id) score = 0;
 
-              for (var id in aPool) {
-                var _emoji2 = aPool[id];
-                var _search = _emoji2.search;
-                var sub = value.substr(0, length);
-                var subIndex = _search.indexOf(sub);
+                aIndex.results.push(emojisList[_id]);
+                aIndex.pool[_id] = emoji;
 
-                if (subIndex != -1) {
-                  var score = subIndex + 1;
-                  if (sub == id) score = 0;
-
-                  aIndex.results.push(emojisList[id]);
-                  aIndex.pool[id] = _emoji2;
-
-                  scores[id] = score;
-                }
+                scores[_id] = score;
               }
+            }
 
-              aIndex.results.sort(function (a, b) {
-                var aScore = scores[a.id],
-                    bScore = scores[b.id];
+            aIndex.results.sort(function (a, b) {
+              var aScore = scores[a.id],
+                  bScore = scores[b.id];
 
-                return aScore - bScore;
-              });
-            })();
-          }
-
-          aPool = aIndex.pool;
+              return aScore - bScore;
+            });
+          })();
         }
-      } catch (err) {
-        _didIteratorError5 = true;
-        _iteratorError5 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion5 && _iterator5.return) {
-            _iterator5.return();
-          }
-        } finally {
-          if (_didIteratorError5) {
-            throw _iteratorError5;
-          }
-        }
+
+        aPool = aIndex.pool;
       }
 
       return aIndex.results;
@@ -268,7 +161,7 @@ function search(value) {
     });
 
     if (allResults.length > 1) {
-      results = _.intersect.apply(undefined, (0, _toConsumableArray3.default)(allResults));
+      results = _.intersect.apply(null, allResults);
     } else if (allResults.length) {
       results = allResults[0];
     } else {
@@ -279,7 +172,7 @@ function search(value) {
   if (results) {
     if (emojisToShowFilter) {
       results = results.filter(function (result) {
-        return emojisToShowFilter(_data2.default.emojis[result.id].unified);
+        return emojisToShowFilter(_data2.default.emojis[result.id]);
       });
     }
 

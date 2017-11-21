@@ -12,7 +12,7 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _data = require('../../data');
+var _data = require('../data');
 
 var _data2 = _interopRequireDefault(_data);
 
@@ -85,19 +85,30 @@ var Emoji = function Emoji(props) {
     }
   }
 
-  var _getData3 = _getData(props);
+  var data = _getData(props);
+  if (!data) {
+    return null;
+  }
 
-  var unified = _getData3.unified;
-  var custom = _getData3.custom;
-  var imageUrl = _getData3.imageUrl;
+  var unified = data.unified;
+  var custom = data.custom;
+  var short_names = data.short_names;
+  var imageUrl = data.imageUrl;
   var style = {};
   var children = props.children;
+  var className = 'emoji-mart-emoji';
+  var title = null;
 
   if (!unified && !custom) {
     return null;
   }
 
+  if (props.tooltip) {
+    title = short_names[0];
+  }
+
   if (props.native && unified) {
+    className += ' emoji-mart-emoji-native';
     style = { fontSize: props.size };
     children = (0, _utils.unifiedToNative)(unified);
 
@@ -107,12 +118,13 @@ var Emoji = function Emoji(props) {
       style.height = props.size;
     }
   } else if (custom) {
+    className += ' emoji-mart-emoji-custom';
     style = {
       width: props.size,
       height: props.size,
       display: 'inline-block',
       backgroundImage: 'url(' + imageUrl + ')',
-      backgroundSize: '100%'
+      backgroundSize: 'contain'
     };
   } else {
     var setHasEmoji = _getData(props)['has_img_' + props.set];
@@ -144,7 +156,9 @@ var Emoji = function Emoji(props) {
       onMouseLeave: function onMouseLeave(e) {
         return _handleLeave(e, props);
       },
-      className: 'emoji-mart-emoji' },
+      title: title,
+      className: className
+    },
     _react2.default.createElement(
       'span',
       { style: style },
@@ -159,8 +173,9 @@ Emoji.defaultProps = {
   sheetSize: 64,
   native: false,
   forceSize: false,
+  tooltip: false,
   backgroundImageFn: function backgroundImageFn(set, sheetSize) {
-    return 'https://unpkg.com/emoji-datasource-' + set + '@' + EMOJI_DATASOURCE_VERSION + '/img/' + set + '/sheets/' + sheetSize + '.png';
+    return 'https://unpkg.com/emoji-datasource-' + set + '@' + '3.0.0' + '/img/' + set + '/sheets/' + sheetSize + '.png';
   },
   onOver: function onOver() {},
   onLeave: function onLeave() {},

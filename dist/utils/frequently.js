@@ -4,14 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _keys = require('babel-runtime/core-js/object/keys');
-
-var _keys2 = _interopRequireDefault(_keys);
-
-var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
-
-var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
-
 var _store = require('./store');
 
 var _store2 = _interopRequireDefault(_store);
@@ -20,10 +12,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var DEFAULTS = ['+1', 'grinning', 'kissing_heart', 'heart_eyes', 'laughing', 'stuck_out_tongue_winking_eye', 'sweat_smile', 'joy', 'scream', 'disappointed', 'unamused', 'weary', 'sob', 'sunglasses', 'heart', 'poop'];
 
-var frequently = _store2.default.get('frequently');
+var frequently = void 0,
+    initialized = void 0;
 var defaults = {};
 
+function init() {
+  initialized = true;
+  frequently = _store2.default.get('frequently');
+}
+
 function add(emoji) {
+  if (!initialized) init();
   var id = emoji.id;
 
 
@@ -36,22 +35,35 @@ function add(emoji) {
 }
 
 function get(perLine) {
+  if (!initialized) init();
   if (!frequently) {
     defaults = {};
 
-    // Use Array.prototype.fill() when it is more widely supported.
-    return [].concat((0, _toConsumableArray3.default)(Array(perLine))).map(function (_, i) {
+    var result = [];
+
+    for (var i = 0; i < perLine; i++) {
       defaults[DEFAULTS[i]] = perLine - i;
-      return DEFAULTS[i];
-    });
+      result.push(DEFAULTS[i]);
+    }
+
+    return result;
   }
 
-  var quantity = perLine * 4,
-      sorted = (0, _keys2.default)(frequently).sort(function (a, b) {
+  var quantity = perLine * 4;
+  var frequentlyKeys = [];
+
+  for (var key in frequently) {
+    if (frequently.hasOwnProperty(key)) {
+      frequentlyKeys.push(key);
+    }
+  }
+
+  var sorted = frequentlyKeys.sort(function (a, b) {
     return frequently[a] - frequently[b];
-  }).reverse(),
-      sliced = sorted.slice(0, quantity),
-      last = _store2.default.get('last');
+  }).reverse();
+  var sliced = sorted.slice(0, quantity);
+
+  var last = _store2.default.get('last');
 
   if (last && sliced.indexOf(last) == -1) {
     sliced.pop();

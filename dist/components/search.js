@@ -4,23 +4,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
+var _objectGetPrototypeOf = require('../polyfills/objectGetPrototypeOf');
 
-var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+var _objectGetPrototypeOf2 = _interopRequireDefault(_objectGetPrototypeOf);
 
 var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = require('babel-runtime/helpers/createClass');
+var _createClass2 = require('../polyfills/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+var _possibleConstructorReturn2 = require('../polyfills/possibleConstructorReturn');
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _inherits2 = require('babel-runtime/helpers/inherits');
+var _inherits2 = require('../polyfills/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
@@ -38,19 +38,23 @@ var _emojiIndex2 = _interopRequireDefault(_emojiIndex);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Search = function (_React$Component) {
-  (0, _inherits3.default)(Search, _React$Component);
+var Search = function (_React$PureComponent) {
+  (0, _inherits3.default)(Search, _React$PureComponent);
 
-  function Search() {
+  function Search(props) {
     (0, _classCallCheck3.default)(this, Search);
-    return (0, _possibleConstructorReturn3.default)(this, (Search.__proto__ || (0, _getPrototypeOf2.default)(Search)).apply(this, arguments));
+
+    var _this = (0, _possibleConstructorReturn3.default)(this, (Search.__proto__ || (0, _objectGetPrototypeOf2.default)(Search)).call(this, props));
+
+    _this.setRef = _this.setRef.bind(_this);
+    _this.handleChange = _this.handleChange.bind(_this);
+    return _this;
   }
 
   (0, _createClass3.default)(Search, [{
     key: 'handleChange',
     value: function handleChange() {
-      var input = this.refs.input;
-      var value = input.value;
+      var value = this.input.value;
 
       this.props.onSearch(_emojiIndex2.default.search(value, {
         emojisToShowFilter: this.props.emojisToShowFilter,
@@ -61,9 +65,14 @@ var Search = function (_React$Component) {
       }));
     }
   }, {
+    key: 'setRef',
+    value: function setRef(c) {
+      this.input = c;
+    }
+  }, {
     key: 'clear',
     value: function clear() {
-      this.refs.input.value = '';
+      this.input.value = '';
     }
   }, {
     key: 'render',
@@ -77,9 +86,9 @@ var Search = function (_React$Component) {
         'div',
         { className: 'emoji-mart-search' },
         _react2.default.createElement('input', {
-          ref: 'input',
+          ref: this.setRef,
           type: 'text',
-          onChange: this.handleChange.bind(this),
+          onChange: this.handleChange,
           placeholder: i18n.search,
           autoFocus: autoFocus
         })
@@ -87,7 +96,7 @@ var Search = function (_React$Component) {
     }
   }]);
   return Search;
-}(_react2.default.Component);
+}(_react2.default.PureComponent);
 
 exports.default = Search;
 
