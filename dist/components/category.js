@@ -270,7 +270,7 @@ var Category = function (_React$Component) {
             'div',
             null,
             (0, _.Emoji)((0, _extends3.default)({}, emojiProps, {
-              size: 38,
+              size: 20,
               emoji: 'sleuth_or_spy',
               onOver: null,
               onLeave: null,

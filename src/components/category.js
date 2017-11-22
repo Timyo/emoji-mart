@@ -192,7 +192,7 @@ export default class Category extends React.Component {
               <div>
                 {Emoji({
                   ...emojiProps,
-                  size: 38,
+                  size: 20,
                   emoji: 'sleuth_or_spy',
                   onOver: null,
                   onLeave: null,
